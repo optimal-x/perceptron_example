@@ -1,9 +1,11 @@
 import numpy as np
 from numpy import ndarray, floating, array
+import matplotlib.pyplot as plt
 
 
 class MAE:
     def __call__(self, e):
+        print(type(e)) if type(e) != np.int64 else 0
         return np.abs(e)
 
     def grad(self, e):
@@ -69,6 +71,7 @@ class Model:
         updates the weights and biases given some training data.
         """
         OUTPUT_INDEX = -1
+        loss_arr = []
         for i in range(epoch):
             # make prediction
             prediction: floating = Model.forward(X[:OUTPUT_INDEX], W, B)
@@ -79,9 +82,8 @@ class Model:
 
             W -= new_w
             B -= new_b
-
-        prediction: floating = Model.forward(X[:OUTPUT_INDEX], W, B)
-        print(prediction)
+            loss_arr.append(Forward.e(X[OUTPUT_INDEX], prediction))
+        return loss_arr
 
 
 def grad_w(
@@ -105,19 +107,28 @@ def grad_b(
 
 def main():
     MODEL_SHAPE = (2, 1)
+    EPOCH = 1000
+
     # matricies
     W = np.random.uniform(
         low=0.0, high=1.0, size=(MODEL_SHAPE[0] * MODEL_SHAPE[1],)
     )
-    B = np.random.uniform(low=0.0, high=1.0, size=(MODEL_SHAPE[1],))
+    B = np.random.uniform(low=-1.0, high=1.0, size=(MODEL_SHAPE[1],))
     X = array([1, 0])
 
     # values
     z = Forward.z(X, W, B)
-    yh = Model.forward(X, W, B)
+    prediction_pre_backprop = Model.forward(X, W, B)
+    # print(prediction_pre_backprop)
 
     X = array([1, 0, 1])
-    Model.backwards(X, W, B, epoch=1000)
+    loss = Model.backwards(X, W, B, epoch=EPOCH)
+
+    X = array([0, 0, 0])
+    loss = Model.backwards(X, W, B, epoch=EPOCH)
+
+    x = np.arange(0, 1000, 1)
+    y = loss
 
 
 if __name__ == "__main__":
