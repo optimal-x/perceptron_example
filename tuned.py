@@ -1,6 +1,22 @@
+from collections.abc import Callable
 import numpy as np
 from afuncs import Sigmoid
 import animate_loss as animations
+
+
+def forward(
+    x: np.ndarray,
+    W1: np.ndarray,
+    W2: np.ndarray,
+    B1: np.ndarray,
+    B2: np.ndarray,
+    activation: Callable,
+):
+    H1 = activation(x @ W1 + B1)
+    return activation(H1 @ W2 + B2)
+
+def backward():
+    return
 
 
 def main():
@@ -9,7 +25,7 @@ def main():
     y = np.array([[0], [1], [1], [0]])
     activation = Sigmoid()
     SHAPE = (2, 1_000, 1)
-    
+
     # Seed for reproducibility
     np.random.seed(42)
 
@@ -28,13 +44,13 @@ def main():
     losses = [] * epochs
     for epoch in range(epochs):
         # Forward Propagation
-        H1 = activation(X @ W1 + B1)  
-        O = activation(H1 @ W2 + B2)  
+        H1 = activation(X @ W1 + B1)
+        O = activation(H1 @ W2 + B2)
 
         # Calculate the error
         error = y - O
         loss = np.mean(np.abs(error))
-        if epoch % 1000 == 0:
+        if epoch % 10_000 == 0:
             print(f"Epoch {epoch} - Error: {loss}")
 
         # Backward Propagation
@@ -44,7 +60,6 @@ def main():
         # Update weights and biases
         W2 += H1.T @ d_O * learning_rate
         B2 += np.sum(d_O, axis=0) * learning_rate
-
         W1 += X.T @ d_H1 * learning_rate
         B1 += np.sum(d_H1, axis=0) * learning_rate
 
@@ -54,6 +69,9 @@ def main():
     print("\nTrained Perceptron Output (After training):")
     print(O.round())  # Round output to 0 or 1
     animations.plot(epochs, np.array(losses))
+
+    x = np.array([int(input("a:")), int(input("b:"))])
+    print(forward(x, W1, W2, B1, B2, activation).round())
 
 
 if __name__ == "__main__":
